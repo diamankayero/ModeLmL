@@ -1,11 +1,20 @@
+// Onglet Comparer : mettre les modèles en compétition.
+// Grandes lignes :
+// - choix des modèles par puces (par défaut : tous) ;
+// - validation croisée à N plis lancée côté serveur ;
+// - résultats en tableau trié + deux graphiques en barres :
+//   le score (violet) et le temps d'entraînement (bleu).
+"use client";
 import { useState } from "react";
-import { api, sourcePayload } from "../api";
+import { api, sourcePayload } from "@/lib/api";
 import HBarChart from "./charts";
-import { ActionButton, DataTable, ErrorLine, Field } from "./ui";
+import Button from "@/components/ui/Button";
+import Table from "@/components/ui/Table";
+import { inputCls, Field } from "@/components/ui/Field";
+import { Chip, ErrorLine, SectionTitle } from "@/components/ui/Feedback";
 
-// Onglet Comparer : choix des modèles, validation croisée, tableau + graphiques.
 export default function CompareTab({ source, models }) {
-  const [chosen, setChosen] = useState(null);
+  const [chosen, setChosen] = useState(null);   // modèles cochés (null = tous)
   const [cv, setCv] = useState(5);
   const [busy, setBusy] = useState(false);
   const [result, setResult] = useState(null);
@@ -20,6 +29,7 @@ export default function CompareTab({ source, models }) {
     setChosen(next.length ? next : models);
   }
 
+  // Lance la comparaison côté serveur (les données suivent la source active).
   async function run() {
     setBusy(true); setError(null); setResult(null);
     try {
@@ -31,7 +41,9 @@ export default function CompareTab({ source, models }) {
   }
 
   if (!source) {
-    return <p className="placeholder">Chargez des données depuis le panneau de gauche.</p>;
+    return <p className="mt-8 italic text-(--muted)">
+      Chargez des données depuis le panneau de gauche.
+    </p>;
   }
 
   const rows = result?.results ?? [];
@@ -42,39 +54,39 @@ export default function CompareTab({ source, models }) {
 
   return (
     <>
-      <h3>Modèles à comparer</h3>
-      <div className="chips">
+      <SectionTitle>Modèles à comparer</SectionTitle>
+      <div className="flex flex-wrap gap-2">
         {models.map(m => (
-          <button key={m} className={active.includes(m) ? "chip on" : "chip"}
-                  onClick={() => toggle(m)}>{m}</button>
+          <Chip key={m} on={active.includes(m)} onClick={() => toggle(m)}>{m}</Chip>
         ))}
       </div>
-      <p className="hint-inline" style={{ marginTop: "0.4rem" }}>
+      <p className="mt-2 text-[0.83rem] text-(--muted)">
         Seuls les modèles adaptés à la tâche détectée (classification ou
         régression) sont réellement comparés.
       </p>
-      <div className="controls">
+      <div className="my-4 flex flex-wrap items-end gap-4">
         <Field label="Plis de validation croisée">
           <input type="number" min="2" max="20" value={cv}
-                 style={{ width: "5rem" }} onChange={e => setCv(e.target.value)} />
+                 className={`${inputCls} w-20`} onChange={e => setCv(e.target.value)} />
         </Field>
-        <ActionButton busy={busy} onClick={run}>Lancer la comparaison</ActionButton>
+        <Button busy={busy} onClick={run}>Lancer la comparaison</Button>
       </div>
       {busy && (
-        <p className="hint-inline">
+        <p className="text-[0.83rem] text-(--muted)">
           Chaque modèle est entraîné {cv} fois ; sur le serveur gratuit cela
           peut prendre quelques dizaines de secondes.
         </p>
       )}
-      {error && <div className="out"><ErrorLine message={error} /></div>}
+      {error && <div className="mt-2"><ErrorLine message={error} /></div>}
       {result && (
         <>
-          <p className="meta">
+          <p className="text-sm text-(--ink-2)">
             Validation croisée à {result.cv} plis ; le tableau est trié par {primary},
             du meilleur au moins bon.
           </p>
-          <DataTable rows={rows} columns={tableCols} />
-          <div className="chart-row">
+          <Table rows={rows} columns={tableCols} />
+          {/* Deux graphiques : une mesure chacun, une teinte chacun */}
+          <div className="mt-6 flex flex-wrap gap-8">
             <HBarChart
               title={`${primary} moyenne (écart-type en ±)`}
               items={rows.map(r => ({ label: r.model, value: r[primary],

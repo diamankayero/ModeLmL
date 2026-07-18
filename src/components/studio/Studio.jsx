@@ -1,16 +1,20 @@
+// L'atelier complet : c'est ici que vit tout l'état partagé.
+// Grandes lignes :
+// - source  : d'où viennent les données (intégré, URL, upload) ;
+// - dataset : les données et leurs statistiques (pour Données et Prédire) ;
+// - trained : le dernier modèle entraîné (pour Prédire) ;
+// - tab     : l'onglet actif.
+// La sidebar modifie cet état ; les onglets le consomment.
+"use client";
 import { useEffect, useState } from "react";
-import { api, API_URL, sourcePayload } from "./api";
-import { datasetFromRows } from "./lib/data";
-import Sidebar from "./components/Sidebar";
-import DataTab from "./components/DataTab";
-import CompareTab from "./components/CompareTab";
-import PredictTab from "./components/PredictTab";
-import ReportTab from "./components/ReportTab";
-
-const FALLBACK_MODELS = [
-  "knn", "logistic", "random_forest",
-  "knn_regressor", "linear", "ridge", "lasso", "random_forest_regressor",
-];
+import { api, API_URL, sourcePayload } from "@/lib/api";
+import { datasetFromRows } from "@/lib/data";
+import useModels from "@/hooks/useModels";
+import Sidebar from "./Sidebar";
+import DataTab from "./DataTab";
+import CompareTab from "./CompareTab";
+import PredictTab from "./PredictTab";
+import ReportTab from "./ReportTab";
 
 const TABS = [
   ["donnees", "Données"],
@@ -19,9 +23,8 @@ const TABS = [
   ["analyse", "Analyse"],
 ];
 
-export default function App() {
-  const [models, setModels] = useState([]);
-  const [apiStatus, setApiStatus] = useState("loading");
+export default function Studio() {
+  const { models, status: apiStatus } = useModels();
 
   const [source, setSource] = useState(null);
   const [sourceLabel, setSourceLabel] = useState("");
@@ -36,28 +39,10 @@ export default function App() {
 
   const [tab, setTab] = useState("donnees");
 
-  // Liste des modèles, avec réessais pendant le réveil du serveur.
-  useEffect(() => {
-    let cancelled = false;
-    async function load(attempt) {
-      try {
-        const m = await api("/api/models");
-        if (cancelled) return;
-        setModels([...m.classifiers, ...m.regressors]);
-        setApiStatus("ok");
-      } catch {
-        if (cancelled) return;
-        if (attempt < 6) setTimeout(() => load(attempt + 1), 5000);
-        else { setModels(FALLBACK_MODELS); setApiStatus("fallback"); }
-      }
-    }
-    load(0);
-    return () => { cancelled = true; };
-  }, []);
-
-  // Iris chargé par défaut : l'app n'est jamais vide.
+  // Iris chargé par défaut : l'atelier n'est jamais vide.
   useEffect(() => { loadBuiltin("iris"); }, []);  // eslint-disable-line
 
+  // Changer de données invalide le modèle entraîné sur les anciennes.
   function resetForNewData() {
     setDataset(null); setDataError(null);
     setTrained(null); setTrainError(null);
@@ -87,6 +72,9 @@ export default function App() {
     finally { setLoadingData(false); }
   }
 
+  // Un fichier uploadé reste dans le navigateur : ses statistiques sont
+  // calculées côté client (lib/data.js), il ne part au serveur qu'au moment
+  // d'entraîner, comparer ou analyser.
   function loadUpload(records, target, fileName) {
     resetForNewData();
     try {
@@ -107,13 +95,13 @@ export default function App() {
         seed: trainConfig.seed,
       });
       setTrained(d);
-      setTab("predire");
+      setTab("predire");  // on emmène l'utilisateur vers la suite logique
     } catch (e) { setTrainError(e.message); }
     finally { setTraining(false); }
   }
 
   return (
-    <div className="shell">
+    <div className="grid min-h-screen grid-cols-1 md:grid-cols-[290px_1fr]">
       <Sidebar
         models={models} apiStatus={apiStatus}
         onLoadBuiltin={loadBuiltin} onLoadUrl={loadUrl} onLoadUpload={loadUpload}
@@ -121,25 +109,41 @@ export default function App() {
         trainConfig={trainConfig} setTrainConfig={setTrainConfig}
         onTrain={train} training={training} trained={trained} trainError={trainError}
       />
-      <div className="content">
-        <div className="topbar">
-          <nav className="tabs">
+      <div className="flex min-w-0 flex-col">
+        {/* Barre du haut : onglets + badge de la source active */}
+        <div className="flex items-center gap-4 border-b border-(--hairline)
+                        bg-(--surface) px-8 pt-3">
+          <nav className="flex gap-1">
             {TABS.map(([key, label]) => (
-              <button key={key} className={tab === key ? "tab active" : "tab"}
-                      onClick={() => setTab(key)}>{label}</button>
+              <button key={key} onClick={() => setTab(key)}
+                className={
+                  "cursor-pointer border-b-[2.5px] px-4 pb-2.5 pt-2 text-[0.92rem] " +
+                  (tab === key
+                    ? "border-(--accent) font-semibold text-(--accent)"
+                    : "border-transparent text-(--ink-2) hover:text-(--ink)")
+                }>
+                {label}
+              </button>
             ))}
           </nav>
-          {sourceLabel && <span className="source-badge">{sourceLabel}</span>}
+          {sourceLabel && (
+            <span className="ml-auto mb-1.5 max-w-[40%] truncate rounded-full border
+                             border-(--hairline) bg-(--accent-tint) px-3 py-0.5
+                             text-xs text-(--ink-2)">
+              {sourceLabel}
+            </span>
+          )}
         </div>
-        <main>
+        <main className="w-full max-w-[1080px] px-8 py-6">
           {tab === "donnees" && <DataTab dataset={dataset} />}
           {tab === "comparer" && <CompareTab source={source} models={models} />}
           {tab === "predire" && <PredictTab dataset={dataset} trained={trained} />}
           {tab === "analyse" && <ReportTab source={source} sourceLabel={sourceLabel} />}
         </main>
-        <footer>
+        <footer className="mt-auto px-8 pb-6 text-[0.8rem] text-(--muted)">
           ModeLmL, propulsé par l'API{" "}
-          <a href="https://github.com/diamankayero/trainedml">trainedml</a> ({API_URL}).
+          <a className="text-(--accent) hover:underline"
+             href="https://github.com/diamankayero/trainedml">trainedml</a> ({API_URL}).
           Serveur gratuit : la première requête peut prendre ~30 s.
         </footer>
       </div>

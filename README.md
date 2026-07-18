@@ -1,100 +1,90 @@
 # ModeLmL
 
-Interface **React** pour explorer, entraîner et comparer des modèles de
-machine learning. Propulsée par l'API du package
-[trainedml](https://github.com/diamankayero/trainedml) ; frontend 100 %
-statique, déployé sur GitHub Pages.
+L'atelier de machine learning sans code : une vitrine et une application
+**Next.js + Tailwind CSS + React**, propulsées par l'API du package
+[trainedml](https://github.com/diamankayero/trainedml).
 
-**En ligne : https://diamankayero.github.io/ModeLmL/**
+- **/** : la vitrine (style éditorial clair), rendue côté serveur, indexable
+- **/app** : l'atelier (Données, Comparer, Prédire, Analyse)
 
 ## L'écosystème
 
 | Projet | Rôle |
 |---|---|
 | [trainedml](https://github.com/diamankayero/trainedml) | Le package Python (PyPI) : Trainer, compare(), rapport EDA |
-| [trainedml-webapp](https://github.com/diamankayero/trainedml-webapp) | L'API FastAPI + une page HTML/JS sans framework, la version la plus lisible pour apprendre |
-| **ModeLmL** (ce repo) | La même interface en React : composants, état, build, la version industrielle |
-
-Les deux frontends consomment exactement la même API : c'est la
-démonstration du pattern « le backend ne bouge pas, le frontend est
-interchangeable ».
+| [trainedml-webapp](https://github.com/diamankayero/trainedml-webapp) | L'API FastAPI (Render) + une page HTML minimaliste pour apprendre |
+| **ModeLmL** (ce repo) | La vitrine et l'atelier, en Next.js (Vercel) |
 
 ## Lancement local
 
 ```bash
 npm install
-npm run dev          # http://localhost:5173, branché sur l'API en ligne
+npm run dev            # http://localhost:3000, branché sur l'API en ligne
 ```
 
-Pour travailler contre une API locale (repo trainedml-webapp lancé sur le
-port 8000) :
+Contre une API locale (repo trainedml-webapp sur le port 8000) :
 
 ```bash
-VITE_API_URL=http://localhost:8000 npm run dev
+NEXT_PUBLIC_API_URL=http://localhost:8000 npm run dev
 ```
 
-## Fonctionnalités
+## Architecture
 
-- **Données** : datasets intégrés, CSV par URL ou fichier uploadé (séparateur
-  au choix), sélection de colonnes, filtre par valeur, résumé statistique,
-  export CSV.
-- **Comparer** : choix des modèles, validation croisée, tableau trié et
-  graphiques en barres (score ± écart-type, temps d'entraînement).
-- **Prédire** : un champ par variable pré-rempli avec sa moyenne, prédiction
-  avec le dernier modèle entraîné.
-- **Analyse** : rapport exploratoire complet de trainedml (corrélations,
-  distributions, outliers, normalité, VIF) intégré dans la page.
-- Robuste au réveil du serveur gratuit : réessais, liste de secours, états
-  visibles. Mode sombre automatique.
-
-## Structure
+Le principe Next.js : le dossier `src/app/` EST le routing (un dossier = une
+URL). Le reste se lit par responsabilité :
 
 ```
 src/
-├── api.js                  # client HTTP (URL surchargeable via VITE_API_URL)
-├── App.jsx                 # état global : source de données, entraînement, onglets
-├── lib/data.js             # parsing CSV, statistiques client, export
+├── app/                       # ROUTING
+│   ├── layout.jsx             # commun à tout : police Inter, métadonnées
+│   ├── globals.css            # Tailwind + jetons de design (clair + sombre)
+│   ├── page.jsx               # URL /    : la vitrine
+│   └── app/page.jsx           # URL /app : l'atelier
 ├── components/
-│   ├── Sidebar.jsx         # source de données (intégré/URL/fichier) + entraînement
-│   ├── DataTab.jsx         # exploration : table, filtres, describe, export
-│   ├── CompareTab.jsx      # comparaison multi-modèles + graphiques
-│   ├── PredictTab.jsx      # formulaire de prédiction par variable
-│   ├── ReportTab.jsx       # rapport EDA intégré
-│   ├── charts.jsx          # barres horizontales SVG (une mesure, une teinte)
-│   └── ui.jsx              # bouton, erreur, champ, tableau générique
-└── index.css               # jetons de design (violet, clair + sombre)
+│   ├── landing/               # sections de la vitrine : Navbar, Hero,
+│   │                          #   Features, HowItWorks, OpenSource, Footer
+│   ├── studio/                # l'atelier : Studio (état global), Sidebar,
+│   │                          #   DataTab, CompareTab, PredictTab, ReportTab, charts
+│   └── ui/                    # kit réutilisable : Button, Field, Table, Feedback
+├── lib/                       # logique non visuelle : api.js, data.js
+└── hooks/                     # état réutilisable : useModels (réessais API)
 ```
+
+Règle de lecture : `app/` dit où on va, `components/` dit à quoi ça
+ressemble, `lib/` et `hooks/` disent comment ça marche. Les grandes lignes de
+chaque fichier sont commentées en tête de fichier.
+
+## Fonctionnalités de l'atelier
+
+- **Données** : datasets intégrés, CSV par URL ou fichier uploadé (parsé dans
+  le navigateur), filtres, résumé statistique, export CSV.
+- **Comparer** : choix des modèles, validation croisée, tableau trié et
+  graphiques en barres SVG (score ± écart-type, temps d'entraînement).
+- **Prédire** : un champ par variable pré-rempli avec sa moyenne.
+- **Analyse** : rapport exploratoire complet de trainedml, intégré.
+- Robuste au réveil du serveur gratuit (réessais, liste de secours, états
+  visibles) ; mode sombre automatique dans l'atelier.
 
 ## Vérification visuelle
 
-`scripts/visual-check.mjs` pilote Edge headless et exerce les quatre onglets
-contre une API locale (captures d'écran à l'appui) :
+`scripts/visual-check.mjs` pilote Edge headless et exerce la vitrine puis les
+quatre onglets contre l'API locale, captures d'écran à l'appui :
 
 ```bash
 # terminal 1 : API locale (repo trainedml-webapp)
 uvicorn api:app --port 8000
-# terminal 2 : build local branché dessus + preview
-VITE_API_URL=http://localhost:8000 npm run build && npm run preview -- --port 4173
+# terminal 2 : build branché dessus + serveur
+NEXT_PUBLIC_API_URL=http://localhost:8000 npm run build && npm run start
 # terminal 3
 node scripts/visual-check.mjs
 ```
 
-## Build et déploiement
+## Déploiement (Vercel)
 
-```bash
-npm run build        # produit dist/
-npm run preview      # sert dist/ en local
-```
-
-Chaque push sur main déclenche le workflow GitHub Actions qui build et
-déploie sur GitHub Pages (`.github/workflows/deploy.yml`). Le chemin de
-base `/ModeLmL/` est configuré dans `vite.config.js`.
-
-## Notes
-
-- L'API en ligne (plan gratuit Render) s'endort après 15 min d'inactivité :
-  la première requête peut prendre ~30 s.
-- Mode sombre automatique selon le réglage du système.
+1. Créer un compte sur https://vercel.com (connexion GitHub).
+2. "Add New" > "Project" > importer le repo `diamankayero/ModeLmL`.
+3. Vercel détecte Next.js tout seul : aucun réglage, "Deploy".
+4. Chaque push sur main redéploie automatiquement.
 
 ## Licence
 

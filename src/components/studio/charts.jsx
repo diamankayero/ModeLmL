@@ -1,7 +1,10 @@
 // Graphique en barres horizontales, en SVG pur.
-// Une mesure, une teinte (la couleur ne code jamais l'identité des lignes :
-// les libellés s'en chargent). Barres fines, extrémité arrondie côté donnée,
-// base carrée sur l'axe, valeurs affichées directement au bout des barres.
+// Règles de lecture (héritées du système de visualisation du projet) :
+// - une mesure = une teinte ; la couleur ne code jamais l'identité des
+//   lignes, ce sont les libellés qui s'en chargent ;
+// - barres fines, extrémité arrondie côté donnée, base carrée sur l'axe ;
+// - valeurs affichées directement au bout des barres (pas de survol requis).
+"use client";
 
 const BAR_H = 12;
 const ROW_H = 30;
@@ -25,13 +28,14 @@ export default function HBarChart({ title, items, max, format, barVar = "--accen
   const ticks = [0, 0.25, 0.5, 0.75, 1].map(t => t * domainMax);
 
   return (
-    <figure className="chart">
-      <figcaption>{title}</figcaption>
+    <figure className="m-0 min-w-0 flex-1 basis-[340px]">
+      <figcaption className="mb-2 text-sm font-semibold text-(--ink-2)">{title}</figcaption>
       <svg
         viewBox={`0 0 ${LABEL_W + chartW + VALUE_W} ${height}`}
         role="img" aria-label={title}
-        style={{ width: "100%", maxWidth: 620, height: "auto" }}
+        className="h-auto w-full max-w-[620px]"
       >
+        {/* Grille verticale discrète + axe de base */}
         {ticks.map(t => (
           <line key={t}
             x1={LABEL_W + scale(t)} y1={0}
@@ -40,6 +44,7 @@ export default function HBarChart({ title, items, max, format, barVar = "--accen
         ))}
         <line x1={LABEL_W} y1={0} x2={LABEL_W} y2={height - 4}
               stroke="var(--baseline)" strokeWidth="1" />
+        {/* Une ligne par élément : libellé, barre, valeur directe */}
         {items.map((item, i) => {
           const y = i * ROW_H + (ROW_H - BAR_H) / 2;
           const w = Math.max(scale(item.value), 2);

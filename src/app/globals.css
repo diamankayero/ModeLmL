@@ -1,0 +1,71 @@
+/* Feuille de style globale.
+   Grandes lignes :
+   1. On importe Tailwind (toutes les classes utilitaires).
+   2. On déclare nos jetons de design en variables CSS : ce sont les seules
+      couleurs autorisées dans l'app, pour garder une identité cohérente.
+   3. L'atelier suit le thème du système (clair/sombre) ; la vitrine, elle,
+      est volontairement claire, façon Notion. */
+
+@import "tailwindcss";
+
+/* ---- Jetons de l'atelier : mode clair ---- */
+:root {
+  --plane: #f9f9f7;        /* fond de page */
+  --surface: #ffffff;      /* cartes et panneaux */
+  --ink: #191919;          /* texte principal (noir doux, comme Notion) */
+  --ink-2: #52514e;        /* texte secondaire */
+  --muted: #91908c;        /* libellés discrets */
+  --hairline: rgba(25, 25, 25, 0.09);   /* bordures fines */
+  --grid: #e8e7e4;         /* lignes de tableaux et de graphiques */
+  --baseline: #c9c8c4;     /* axe des graphiques */
+  --accent: #4a3aa7;       /* violet ModeLmL */
+  --accent-strong: #37307e;
+  --accent-ink: #ffffff;   /* texte posé sur l'accent */
+  --accent-tint: rgba(74, 58, 167, 0.08);
+  --bar-alt: #2a78d6;      /* bleu des graphiques de temps */
+  --good: #0f7b0f;
+  --critical: #d03b3b;
+}
+
+/* ---- Jetons de l'atelier : mode sombre (déclinés, pas inversés) ---- */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --plane: #0f0f0e;
+    --surface: #1a1a19;
+    --ink: #f4f4f2;
+    --ink-2: #c3c2b7;
+    --muted: #898781;
+    --hairline: rgba(255, 255, 255, 0.1);
+    --grid: #2c2c2a;
+    --baseline: #383835;
+    --accent: #9085e9;
+    --accent-strong: #a9a0f0;
+    --accent-ink: #0b0b0b;
+    --accent-tint: rgba(144, 133, 233, 0.13);
+    --bar-alt: #3987e5;
+    --good: #0ca30c;
+    --critical: #e66767;
+  }
+}
+
+/* La vitrine force le mode clair quel que soit le système :
+   un simple attribut data-theme="light" posé sur sa racine. */
+[data-theme="light"] {
+  --plane: #ffffff;
+  --surface: #ffffff;
+  --ink: #191919;
+  --ink-2: #52514e;
+  --muted: #91908c;
+  --hairline: rgba(25, 25, 25, 0.09);
+  --accent: #4a3aa7;
+  --accent-strong: #37307e;
+  --accent-ink: #ffffff;
+  --accent-tint: rgba(74, 58, 167, 0.08);
+  color-scheme: light;
+}
+
+body {
+  background: var(--plane);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+}
