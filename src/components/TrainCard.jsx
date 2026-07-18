@@ -36,8 +36,11 @@ export default function TrainCard({ models }) {
           </select>
         </label>
         <label className="field"><span>Modèle</span>
-          <select value={model} onChange={e => setModel(e.target.value)}>
-            {models.map(name => <option key={name}>{name}</option>)}
+          <select value={model || models[0] || ""} disabled={!models.length}
+                  onChange={e => setModel(e.target.value)}>
+            {models.length
+              ? models.map(name => <option key={name}>{name}</option>)
+              : <option value="">chargement...</option>}
           </select>
         </label>
         <label className="field"><span>Seed</span>
