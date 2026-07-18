@@ -33,18 +33,50 @@ port 8000) :
 VITE_API_URL=http://localhost:8000 npm run dev
 ```
 
+## Fonctionnalités
+
+- **Données** : datasets intégrés, CSV par URL ou fichier uploadé (séparateur
+  au choix), sélection de colonnes, filtre par valeur, résumé statistique,
+  export CSV.
+- **Comparer** : choix des modèles, validation croisée, tableau trié et
+  graphiques en barres (score ± écart-type, temps d'entraînement).
+- **Prédire** : un champ par variable pré-rempli avec sa moyenne, prédiction
+  avec le dernier modèle entraîné.
+- **Analyse** : rapport exploratoire complet de trainedml (corrélations,
+  distributions, outliers, normalité, VIF) intégré dans la page.
+- Robuste au réveil du serveur gratuit : réessais, liste de secours, états
+  visibles. Mode sombre automatique.
+
 ## Structure
 
 ```
 src/
 ├── api.js                  # client HTTP (URL surchargeable via VITE_API_URL)
-├── App.jsx                 # mise en page : header, les 3 cartes, footer
+├── App.jsx                 # état global : source de données, entraînement, onglets
+├── lib/data.js             # parsing CSV, statistiques client, export
 ├── components/
-│   ├── TrainCard.jsx       # étape 1 : entraîner, scores en tuiles
-│   ├── PredictCard.jsx     # étape 2 : prédire, résultats en pastilles
-│   ├── CompareCard.jsx     # étape 3 : comparer, tableau + barres de score
-│   └── ui.jsx              # bouton avec spinner, ligne d'erreur
-└── index.css               # jetons de design (clair + sombre automatique)
+│   ├── Sidebar.jsx         # source de données (intégré/URL/fichier) + entraînement
+│   ├── DataTab.jsx         # exploration : table, filtres, describe, export
+│   ├── CompareTab.jsx      # comparaison multi-modèles + graphiques
+│   ├── PredictTab.jsx      # formulaire de prédiction par variable
+│   ├── ReportTab.jsx       # rapport EDA intégré
+│   ├── charts.jsx          # barres horizontales SVG (une mesure, une teinte)
+│   └── ui.jsx              # bouton, erreur, champ, tableau générique
+└── index.css               # jetons de design (violet, clair + sombre)
+```
+
+## Vérification visuelle
+
+`scripts/visual-check.mjs` pilote Edge headless et exerce les quatre onglets
+contre une API locale (captures d'écran à l'appui) :
+
+```bash
+# terminal 1 : API locale (repo trainedml-webapp)
+uvicorn api:app --port 8000
+# terminal 2 : build local branché dessus + preview
+VITE_API_URL=http://localhost:8000 npm run build && npm run preview -- --port 4173
+# terminal 3
+node scripts/visual-check.mjs
 ```
 
 ## Build et déploiement
