@@ -4,7 +4,7 @@
 // - distribution de la cible (barres pour des classes, histogramme sinon) ;
 // - les corrélations les plus fortes entre variables (bleu : positive,
 //   rouge : négative) ;
-// - les points d'attention : manquants, outliers, variables non normales.
+// - les points d'attention : valeurs manquantes et outliers.
 "use client";
 import { AlertTriangle, CheckCircle2 } from "lucide-react";
 import HBarChart, { Histogram } from "./charts";
@@ -31,7 +31,6 @@ export default function OverviewScreen({ dataset, analysis, analysisLoading }) {
 
   const missingTotal = analysis?.missing.reduce((s, m) => s + m.count, 0);
   const outlierCols = analysis?.outliers.filter(o => o.count > 0) ?? [];
-  const nonNormal = analysis?.normality.filter(n => !n.normal) ?? [];
 
   return (
     <>
@@ -108,14 +107,6 @@ export default function OverviewScreen({ dataset, analysis, analysisLoading }) {
               {outlierCols.length > 0
                 ? `Outliers détectés sur ${outlierCols.length} variable(s) : ${outlierCols.map(o => o.column).join(", ")}.`
                 : "Aucun outlier détecté (méthode IQR)."}
-            </li>
-            <li className="flex items-center gap-2">
-              {nonNormal.length > 0
-                ? <AlertTriangle className="size-4 text-(--critical)" />
-                : <CheckCircle2 className="size-4 text-(--good)" />}
-              {nonNormal.length > 0
-                ? `${nonNormal.length} variable(s) non normale(s) au test de Shapiro-Wilk.`
-                : "Toutes les variables passent le test de normalité."}
             </li>
           </ul>
         )}

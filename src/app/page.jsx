@@ -10,6 +10,7 @@ import Navbar from "@/components/landing/Navbar";
 import Hero from "@/components/landing/Hero";
 import Features from "@/components/landing/Features";
 import HowItWorks from "@/components/landing/HowItWorks";
+import Analyses from "@/components/landing/Analyses";
 import OpenSource from "@/components/landing/OpenSource";
 import Footer from "@/components/landing/Footer";
 
@@ -21,6 +22,7 @@ export default function LandingPage() {
         <Hero />
         <Features />
         <HowItWorks />
+        <Analyses />
         <OpenSource />
       </main>
       <Footer />

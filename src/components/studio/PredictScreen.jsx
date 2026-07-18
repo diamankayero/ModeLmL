@@ -8,6 +8,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
+import HBarChart from "./charts";
 import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
 import ScreenHeader from "@/components/ui/ScreenHeader";
@@ -89,6 +90,18 @@ export default function PredictScreen({
             {Object.entries(trained.scores).map(([name, v]) => (
               <Tile key={name} label={name} value={v.toFixed(3)} />
             ))}
+          </div>
+        )}
+        {/* Ce qui décide vraiment : l'importance des variables, quand le
+            modèle sait la donner (forêts, modèles linéaires ; pas KNN). */}
+        {trained?.importances && (
+          <div className="mt-5">
+            <HBarChart
+              title="Importance des variables : ce qui pèse dans la prédiction"
+              labelW={190}
+              items={trained.importances.map(i => ({
+                label: i.feature, value: i.importance }))}
+            />
           </div>
         )}
       </Card>

@@ -1,10 +1,11 @@
 // Écran Analyse : l'exploration en profondeur, dessinée nativement.
 // Grandes lignes :
 // - tout vient de /api/analysis (des chiffres, pas des images) : les
-//   distributions, la heatmap de corrélation, les manquants, les outliers
-//   et la normalité sont rendus avec nos propres composants ;
+//   distributions, la heatmap de corrélation, les manquants et les outliers
+//   sont rendus avec nos propres composants ;
 // - le rapport HTML complet de trainedml reste disponible en téléchargement,
-//   c'est sa juste place : un export, pas un écran.
+//   c'est sa juste place : un export, pas un écran. Les tests de normalité
+//   n'apparaissent que là : ils relèvent de la statistique, pas du ML.
 "use client";
 import { useState } from "react";
 import { Download } from "lucide-react";
@@ -79,7 +80,7 @@ export default function AnalysisScreen({ source, sourceLabel, analysis, analysis
             </div>
           </Card>
 
-          <div className="grid gap-5 lg:grid-cols-3">
+          <div className="grid gap-5 lg:grid-cols-2">
             {/* Manquants */}
             <Card title="Valeurs manquantes">
               {missing.length
@@ -93,14 +94,6 @@ export default function AnalysisScreen({ source, sourceLabel, analysis, analysis
                 ? <Table rows={outliers.map(o => ({
                     colonne: o.column, outliers: o.count }))} />
                 : <p className="text-sm text-(--good)">Aucun outlier détecté.</p>}
-            </Card>
-            {/* Normalité */}
-            <Card title="Normalité (Shapiro-Wilk)">
-              <Table rows={analysis.normality.map(n => ({
-                colonne: n.column,
-                "p-value": n.p_value,
-                "normale (5 %)": n.normal ? "oui" : "non",
-              }))} />
             </Card>
           </div>
         </div>
