@@ -69,3 +69,16 @@ body {
   color: var(--ink);
   -webkit-font-smoothing: antialiased;
 }
+
+/* Jetons des visualisations de corrélation (échelle divergente :
+   bleu = corrélation positive, rouge = négative, neutre au centre). */
+:root {
+  --corr-neutral: #f0efec;
+  --corr-neg: #e34948;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --corr-neutral: #383835;
+    --corr-neg: #e66767;
+  }
+}

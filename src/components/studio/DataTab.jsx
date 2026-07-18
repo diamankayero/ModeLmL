@@ -10,7 +10,7 @@ import { downloadCsv, uniqueValues } from "@/lib/data";
 import Button from "@/components/ui/Button";
 import Table from "@/components/ui/Table";
 import { inputCls, Field } from "@/components/ui/Field";
-import { Chip, SectionTitle, Tile } from "@/components/ui/Feedback";
+import { Chip, SectionTitle } from "@/components/ui/Feedback";
 
 export default function DataTab({ dataset }) {
   const [selected, setSelected] = useState(null);   // colonnes cochées (null = toutes)
@@ -47,16 +47,6 @@ export default function DataTab({ dataset }) {
 
   return (
     <>
-      {/* Synthèse du dataset en tuiles */}
-      <div className="grid grid-cols-[repeat(auto-fit,minmax(130px,1fr))] gap-3">
-        <Tile label="observations" value={dataset.n_rows} />
-        <Tile label="variables" value={dataset.feature_names.length} />
-        <Tile label="cible" value={dataset.target} small />
-        {dataset.classes && (
-          <Tile label="classes" value={dataset.classes.join(", ")} small />
-        )}
-      </div>
-
       <SectionTitle>Colonnes affichées</SectionTitle>
       <div className="flex flex-wrap gap-2">
         {columns.map(col => (

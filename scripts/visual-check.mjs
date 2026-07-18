@@ -1,7 +1,7 @@
 // Banc de test visuel de ModeLmL.
 // Grandes lignes :
-// - pilote Edge en mode headless (sans fenêtre) avec puppeteer-core ;
-// - exerce la vitrine puis chaque onglet de l'atelier contre l'API locale ;
+// - pilote Edge en mode headless avec puppeteer-core ;
+// - exerce la vitrine puis chaque écran de l'atelier contre l'API locale ;
 // - capture un écran à chaque étape (dossier SHOT_DIR, ou le dossier courant).
 // Prérequis : API locale sur :8000, app Next sur :3000 (voir README).
 import puppeteer from "puppeteer-core";
@@ -9,7 +9,6 @@ import puppeteer from "puppeteer-core";
 const OUT = process.env.SHOT_DIR ?? ".";
 const BASE = process.env.APP_URL ?? "http://localhost:3000";
 
-// Clique le premier élément dont le texte contient `text`.
 const clickByText = async (page, selector, text) => {
   await page.evaluate((sel, txt) => {
     const el = [...document.querySelectorAll(sel)]
@@ -19,7 +18,6 @@ const clickByText = async (page, selector, text) => {
   }, selector, text);
 };
 
-// Attend qu'un texte apparaisse quelque part dans la page.
 const waitText = (page, text, timeout = 60000) =>
   page.waitForFunction(
     t => document.body.innerText.includes(t), { timeout }, text);
@@ -38,15 +36,27 @@ await waitText(page, "Ouvrir l'atelier");
 await page.screenshot({ path: `${OUT}/check_vitrine.png`, fullPage: true });
 console.log("OK vitrine");
 
-// --- L'atelier : onglet Données (iris chargé par défaut) ---
+// --- Aperçu (écran d'accueil, iris chargé et analysé automatiquement) ---
 await page.goto(`${BASE}/app`, { waitUntil: "networkidle2" });
-await waitText(page, "observations");
+await waitText(page, "Points d'attention", 90000);
+await waitText(page, "Corrélations les plus fortes");
+await page.screenshot({ path: `${OUT}/check_apercu.png` });
+console.log("OK apercu");
+
+// --- Données ---
+await clickByText(page, "nav button", "Données");
 await waitText(page, "sepal_length");
 await page.screenshot({ path: `${OUT}/check_donnees.png` });
 console.log("OK donnees");
 
-// --- Comparer : cv = 3 puis lancement ---
-await clickByText(page, "nav button", "Comparer");
+// --- Analyse (native, pré-chargée) ---
+await clickByText(page, "nav button", "Analyse");
+await waitText(page, "Corrélations entre variables", 90000);
+await page.screenshot({ path: `${OUT}/check_analyse.png` });
+console.log("OK analyse");
+
+// --- Comparaison : cv = 3 puis lancement ---
+await clickByText(page, "nav button", "Comparaison");
 await page.evaluate(() => {
   const input = document.querySelector('input[type="number"][min="2"]');
   const setter = Object.getOwnPropertyDescriptor(
@@ -56,24 +66,17 @@ await page.evaluate(() => {
 });
 await clickByText(page, "main button", "Lancer la comparaison");
 await waitText(page, "Validation croisée à 3 plis", 120000);
-await page.screenshot({ path: `${OUT}/check_comparer.png` });
-console.log("OK comparer");
+await page.screenshot({ path: `${OUT}/check_comparaison.png` });
+console.log("OK comparaison");
 
-// --- Entraîner (sidebar) puis Prédire ---
-await clickByText(page, "aside button", "Entraîner");
-await waitText(page, "modèle actif", 120000);
+// --- Prédiction : entraîner puis prédire ---
+await clickByText(page, "nav button", "Prédiction");
+await clickByText(page, "main button", "Entraîner");
+await waitText(page, "tâche", 120000);
 await clickByText(page, "main button", "Prédire");
 await waitText(page, "Prédiction du modèle", 60000);
-await page.screenshot({ path: `${OUT}/check_predire.png` });
-console.log("OK predire");
-
-// --- Analyse : génération du rapport EDA ---
-await clickByText(page, "nav button", "Analyse");
-await clickByText(page, "main button", "Générer le rapport");
-await page.waitForSelector("iframe", { timeout: 120000 });
-await new Promise(r => setTimeout(r, 1500));
-await page.screenshot({ path: `${OUT}/check_analyse.png` });
-console.log("OK analyse");
+await page.screenshot({ path: `${OUT}/check_prediction.png` });
+console.log("OK prediction");
 
 await browser.close();
 console.log("TERMINE");

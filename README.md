@@ -5,7 +5,7 @@ L'atelier de machine learning sans code : une vitrine et une application
 [trainedml](https://github.com/diamankayero/trainedml).
 
 - **/** : la vitrine (style éditorial clair), rendue côté serveur, indexable
-- **/app** : l'atelier (Données, Comparer, Prédire, Analyse)
+- **/app** : l'atelier (Aperçu, Données, Analyse, Comparaison, Prédiction)
 
 ## L'écosystème
 
@@ -43,8 +43,9 @@ src/
 ├── components/
 │   ├── landing/               # sections de la vitrine : Navbar, Hero,
 │   │                          #   Features, HowItWorks, OpenSource, Footer
-│   ├── studio/                # l'atelier : Studio (état global), Sidebar,
-│   │                          #   DataTab, CompareTab, PredictTab, ReportTab, charts
+│   ├── studio/                # l'atelier : Studio (état global), Nav,
+│   │                          #   SourceBar, OverviewScreen, DataTab,
+│   │                          #   AnalysisScreen, CompareTab, PredictScreen, charts
 │   └── ui/                    # kit réutilisable : Button, Field, Table, Feedback
 ├── lib/                       # logique non visuelle : api.js, data.js
 └── hooks/                     # état réutilisable : useModels (réessais API)
@@ -56,12 +57,18 @@ chaque fichier sont commentées en tête de fichier.
 
 ## Fonctionnalités de l'atelier
 
+- **Aperçu** : tableau de bord du dataset : tuiles, distribution de la cible,
+  corrélations les plus fortes, points d'attention (manquants, outliers,
+  normalité).
 - **Données** : datasets intégrés, CSV par URL ou fichier uploadé (parsé dans
   le navigateur), filtres, résumé statistique, export CSV.
-- **Comparer** : choix des modèles, validation croisée, tableau trié et
+- **Analyse** : exploration native (heatmap de corrélation, histogrammes,
+  diagnostics) dessinée avec les composants de l'app à partir de
+  /api/analysis ; le rapport HTML complet reste téléchargeable.
+- **Comparaison** : choix des modèles, validation croisée, tableau trié et
   graphiques en barres SVG (score ± écart-type, temps d'entraînement).
-- **Prédire** : un champ par variable pré-rempli avec sa moyenne.
-- **Analyse** : rapport exploratoire complet de trainedml, intégré.
+- **Prédiction** : configuration d'entraînement contextuelle + un champ par
+  variable pré-rempli avec sa moyenne.
 - Robuste au réveil du serveur gratuit (réessais, liste de secours, états
   visibles) ; mode sombre automatique dans l'atelier.
 
