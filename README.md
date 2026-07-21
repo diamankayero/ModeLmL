@@ -89,17 +89,23 @@ NEXT_PUBLIC_API_URL=http://localhost:8000 npm run build && npm run start
 node scripts/visual-check.mjs
 ```
 
-## Le GIF du hero
+## Les GIF de la vitrine
 
-`scripts/capture-hero-gif.mjs` génère `public/screenshots/hero-demo.gif` :
-une vraie boucle de l'atelier (pas un mockup), obtenue en pilotant un
-navigateur réel à travers les cinq écrans, frappe clavier comprise. Pas de
-ffmpeg requis : les frames sont capturées par puppeteer, redimensionnées par
-sharp et encodées en GIF par gifenc, entièrement en JavaScript.
+Deux scripts partagent le même pipeline (`scripts/lib/capture.mjs`) : de
+vraies captures de l'atelier, pas des mockups. Un navigateur réel exécute de
+vraies interactions (clics, frappe clavier), les frames sont capturées par
+puppeteer, redimensionnées par sharp et encodées en GIF par gifenc,
+entièrement en JavaScript (aucun ffmpeg requis).
+
+- `capture-hero-gif.mjs` : la boucle du hero, à travers les cinq écrans.
+- `capture-feature-gifs.mjs` : un GIF court par carte de fonctionnalités
+  (données filtrées en direct, comparaison relancée, prédiction qui change
+  de résultat, exploration de l'analyse), utilisés dans `Features.jsx`.
 
 ```bash
 # mêmes deux premiers terminaux que ci-dessus, puis :
 node scripts/capture-hero-gif.mjs
+node scripts/capture-feature-gifs.mjs
 ```
 
 À relancer après toute modification visuelle notable de l'atelier, pour que
