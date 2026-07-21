@@ -37,14 +37,16 @@ export default function Hero() {
         Gratuit, sans inscription. Le serveur de démo se réveille en ~30 s.
       </p>
 
-      {/* La preuve : capture réelle de l'atelier */}
+      {/* La preuve : une vraie boucle de l'atelier en action (pas un mockup).
+          GIF non optimisable par Next (l'optimiseur casserait l'animation),
+          servi tel quel via `unoptimized`. */}
       <div className="mx-auto mt-14 max-w-5xl rounded-2xl border border-black/10 bg-white
                       p-2 shadow-[0_24px_60px_-24px_rgba(74,58,167,0.25)]">
         <Image
-          src="/screenshots/studio.png"
-          alt="L'atelier ModeLmL : exploration de données, comparaison de modèles"
-          width={1280} height={900} priority
-          className="rounded-xl border border-black/5"
+          src="/screenshots/hero-demo.gif"
+          alt="L'atelier ModeLmL en action : aperçu du dataset, exploration, comparaison de modèles par validation croisée et prédiction"
+          width={900} height={580} unoptimized priority
+          className="w-full rounded-xl border border-black/5"
         />
       </div>
     </section>

@@ -4,6 +4,8 @@ L'atelier de machine learning sans code : une vitrine et une application
 **Next.js + Tailwind CSS + React**, propulsées par l'API du package
 [trainedml](https://github.com/diamankayero/trainedml).
 
+**En ligne : https://modelml.vercel.app**
+
 - **/** : la vitrine (style éditorial clair), rendue côté serveur, indexable
 - **/app** : l'atelier (Aperçu, Données, Analyse, Comparaison, Prédiction)
 
@@ -58,24 +60,25 @@ chaque fichier sont commentées en tête de fichier.
 ## Fonctionnalités de l'atelier
 
 - **Aperçu** : tableau de bord du dataset : tuiles, distribution de la cible,
-  corrélations les plus fortes, points d'attention (manquants, outliers,
-  normalité).
+  corrélations les plus fortes, points d'attention (manquants, outliers).
 - **Données** : datasets intégrés, CSV par URL ou fichier uploadé (parsé dans
   le navigateur), filtres, résumé statistique, export CSV.
 - **Analyse** : exploration native (heatmap de corrélation, histogrammes,
   diagnostics) dessinée avec les composants de l'app à partir de
-  /api/analysis ; le rapport HTML complet reste téléchargeable.
+  /api/analysis ; le rapport HTML complet (avec les tests de normalité)
+  reste téléchargeable.
 - **Comparaison** : choix des modèles, validation croisée, tableau trié et
   graphiques en barres SVG (score ± écart-type, temps d'entraînement).
-- **Prédiction** : configuration d'entraînement contextuelle + un champ par
-  variable pré-rempli avec sa moyenne.
+- **Prédiction** : configuration d'entraînement contextuelle, importance des
+  variables du modèle entraîné, et un champ par variable pré-rempli avec sa
+  moyenne.
 - Robuste au réveil du serveur gratuit (réessais, liste de secours, états
   visibles) ; mode sombre automatique dans l'atelier.
 
 ## Vérification visuelle
 
 `scripts/visual-check.mjs` pilote Edge headless et exerce la vitrine puis les
-quatre onglets contre l'API locale, captures d'écran à l'appui :
+cinq écrans de l'atelier contre l'API locale, captures d'écran à l'appui :
 
 ```bash
 # terminal 1 : API locale (repo trainedml-webapp)
@@ -85,6 +88,22 @@ NEXT_PUBLIC_API_URL=http://localhost:8000 npm run build && npm run start
 # terminal 3
 node scripts/visual-check.mjs
 ```
+
+## Le GIF du hero
+
+`scripts/capture-hero-gif.mjs` génère `public/screenshots/hero-demo.gif` :
+une vraie boucle de l'atelier (pas un mockup), obtenue en pilotant un
+navigateur réel à travers les cinq écrans, frappe clavier comprise. Pas de
+ffmpeg requis : les frames sont capturées par puppeteer, redimensionnées par
+sharp et encodées en GIF par gifenc, entièrement en JavaScript.
+
+```bash
+# mêmes deux premiers terminaux que ci-dessus, puis :
+node scripts/capture-hero-gif.mjs
+```
+
+À relancer après toute modification visuelle notable de l'atelier, pour que
+le hero reste fidèle au produit.
 
 ## Déploiement (Vercel)
 
