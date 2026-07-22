@@ -118,6 +118,17 @@ le hero reste fidèle au produit.
 3. Vercel détecte Next.js tout seul : aucun réglage, "Deploy".
 4. Chaque push sur main redéploie automatiquement.
 
+## Limites assumées
+
+- **Réveil à froid de l'API (~30 s).** ModeLmL (Vercel, toujours disponible)
+  consomme l'API [trainedml-webapp](https://github.com/diamankayero/trainedml-webapp)
+  hébergée sur le plan gratuit Render, qui s'endort après 15 min
+  d'inactivité. L'atelier réessaie automatiquement et affiche un état
+  ("Réveil du serveur...") plutôt qu'une interface vide. Détails et
+  alternatives écartées dans le README de trainedml-webapp.
+- Pas d'authentification ni de compte : chaque visite repart d'iris par
+  défaut, rien n'est sauvegardé côté serveur au-delà d'un entraînement.
+
 ## Licence
 
 MIT.
