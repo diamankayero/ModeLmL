@@ -13,10 +13,17 @@ import gifenc from "gifenc";
 
 const { GIFEncoder, quantize, applyPalette } = gifenc;
 
+// Chemin du navigateur : Edge en local (Windows), Chrome installé par
+// @puppeteer/browsers en CI (voir .github/workflows/ci.yml et
+// scripts/ci/install-browser.mjs qui pose PUPPETEER_EXECUTABLE_PATH).
+const DEFAULT_BROWSER_PATH =
+  "C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe";
+
 export async function launchPage(viewport) {
   const browser = await puppeteer.launch({
-    executablePath: "C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe",
+    executablePath: process.env.PUPPETEER_EXECUTABLE_PATH ?? DEFAULT_BROWSER_PATH,
     headless: "new",
+    args: ["--no-sandbox"],   // requis dans le conteneur CI (root, pas de sandbox)
     defaultViewport: viewport,
   });
   const page = await browser.newPage();

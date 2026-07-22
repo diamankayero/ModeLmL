@@ -5,17 +5,7 @@
 // - en bas, la pastille d'état de l'API (verte : ok, grise : réveil,
 //   rouge : injoignable).
 "use client";
-import {
-  LayoutDashboard, Table2, ScanSearch, BarChart3, Target,
-} from "lucide-react";
-
-export const SCREENS = [
-  ["apercu", "Aperçu", LayoutDashboard],
-  ["donnees", "Données", Table2],
-  ["analyse", "Analyse", ScanSearch],
-  ["comparaison", "Comparaison", BarChart3],
-  ["prediction", "Prédiction", Target],
-];
+import { SCREENS } from "@/lib/screens";
 
 const STATUS = {
   ok: ["bg-(--good)", "API en ligne"],

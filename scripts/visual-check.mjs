@@ -1,34 +1,18 @@
-// Banc de test visuel de ModeLmL.
+// Banc de test visuel de ModeLmL : sert aussi de vérification en CI.
 // Grandes lignes :
-// - pilote Edge en mode headless avec puppeteer-core ;
-// - exerce la vitrine puis chaque écran de l'atelier contre l'API locale ;
-// - capture un écran à chaque étape (dossier SHOT_DIR, ou le dossier courant).
+// - exerce la vitrine puis chaque écran de l'atelier contre une vraie API,
+//   avec de vraies interactions (clic, saisie) ;
+// - capture un écran à chaque étape (dossier SHOT_DIR, ou le dossier
+//   courant) ; sert de preuve visuelle, pas seulement de test muet ;
+// - toute étape manquante (texte introuvable, délai dépassé) fait planter
+//   le script avec un code de sortie non nul : la CI le voit comme un échec.
 // Prérequis : API locale sur :8000, app Next sur :3000 (voir README).
-import puppeteer from "puppeteer-core";
+import { launchPage, clickByText, waitText } from "./lib/capture.mjs";
 
 const OUT = process.env.SHOT_DIR ?? ".";
 const BASE = process.env.APP_URL ?? "http://localhost:3000";
 
-const clickByText = async (page, selector, text) => {
-  await page.evaluate((sel, txt) => {
-    const el = [...document.querySelectorAll(sel)]
-      .find(e => e.textContent.trim().includes(txt));
-    if (!el) throw new Error(`introuvable : ${sel} "${txt}"`);
-    el.click();
-  }, selector, text);
-};
-
-const waitText = (page, text, timeout = 60000) =>
-  page.waitForFunction(
-    t => document.body.innerText.includes(t), { timeout }, text);
-
-const browser = await puppeteer.launch({
-  executablePath: "C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe",
-  headless: "new",
-  args: ["--window-size=1280,900"],
-  defaultViewport: { width: 1280, height: 900 },
-});
-const page = await browser.newPage();
+const { browser, page } = await launchPage({ width: 1280, height: 900 });
 
 // --- La vitrine ---
 await page.goto(`${BASE}/`, { waitUntil: "networkidle2" });
@@ -57,6 +41,9 @@ console.log("OK analyse");
 
 // --- Comparaison : cv = 3 puis lancement ---
 await clickByText(page, "nav button", "Comparaison");
+// Pas "Modèles à comparer" : ce titre est en CSS uppercase, or innerText
+// (contrairement à textContent) reflète la casse rendue, pas la source.
+await waitText(page, "Lancer la comparaison");
 await page.evaluate(() => {
   const input = document.querySelector('input[type="number"][min="2"]');
   const setter = Object.getOwnPropertyDescriptor(

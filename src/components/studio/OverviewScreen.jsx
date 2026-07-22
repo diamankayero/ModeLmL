@@ -10,7 +10,7 @@ import { AlertTriangle, CheckCircle2 } from "lucide-react";
 import HBarChart, { Histogram } from "./charts";
 import Card from "@/components/ui/Card";
 import ScreenHeader from "@/components/ui/ScreenHeader";
-import { SkeletonTiles, Skeleton } from "@/components/ui/Skeleton";
+import { Skeleton } from "@/components/ui/Skeleton";
 import { Tile } from "@/components/ui/Feedback";
 
 // Extrait les paires de corrélation les plus fortes de la matrice.
